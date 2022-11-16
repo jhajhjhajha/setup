@@ -1,10 +1,13 @@
 #!/bin/bash
-cp /usr/share/zoneinfo/Asia/Riyadh /etc/localtime
-#Database Details
+#Script Variables
 HOST='webhosting2046.is.cc';
 USER='mytunnel_zoey';
-PASS='JAN022011b';
+PASS='jan022011';
 DBNAME='mytunnel_zoey';
+PORT_TCP='1194';
+PORT_UDP='53';
+
+cp /usr/share/zoneinfo/Asia/Riyadh /etc/localtime
 
 install_require()
 {
@@ -51,17 +54,24 @@ sudo apt install -y squid3=3.3.8-1ubuntu6 squid=3.3.8-1ubuntu6 squid3-common=3.3
 # Default-Stop:      0 1 6
 # Short-Description: Squid HTTP Proxy version 3.x
 ### END INIT INFO
+
 NAME=squid3
 DESC="Squid HTTP Proxy"
 DAEMON=/usr/sbin/squid3
 PIDFILE=/var/run/$NAME.pid
 CONFIG=/etc/squid3/squid.conf
 SQUID_ARGS="-YC -f $CONFIG"
+
 [ ! -f /etc/default/squid ] || . /etc/default/squid
+
 . /lib/lsb/init-functions
+
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
 [ -x $DAEMON ] || exit 0
+
 ulimit -n 65535
+
 find_cache_dir () {
 	w=" 	" # space tab
         res=`$DAEMON -k parse -f $CONFIG 2>&1 |
@@ -75,6 +85,7 @@ find_cache_dir () {
         [ -n "$res" ] || res=$2
         echo "$res"
 }
+
 grepconf () {
 	w=" 	" # space tab
         res=`$DAEMON -k parse -f $CONFIG 2>&1 |
@@ -88,10 +99,12 @@ grepconf () {
 	[ -n "$res" ] || res=$2
 	echo "$res"
 }
+
 create_run_dir () {
 	run_dir=/var/run/squid3
 	usr=`grepconf cache_effective_user proxy`
 	grp=`grepconf cache_effective_group proxy`
+
 	if [ "$(dpkg-statoverride --list $run_dir)" = "" ] &&
 	   [ ! -e $run_dir ] ; then
 		mkdir -p $run_dir
@@ -99,14 +112,17 @@ create_run_dir () {
 		[ -x /sbin/restorecon ] && restorecon $run_dir
 	fi
 }
+
 start () {
 	cache_dir=`find_cache_dir cache_dir`
 	cache_type=`grepconf cache_dir`
 	run_dir=/var/run/squid3
+
 	#
 	# Create run dir (needed for several workers on SMP)
 	#
 	create_run_dir
+
 	#
 	# Create spool dirs if they don't exist.
 	#
@@ -116,6 +132,7 @@ start () {
 		$DAEMON -z -f $CONFIG
 		[ -x /sbin/restorecon ] && restorecon -R $cache_dir
 	fi
+
 	umask 027
 	ulimit -n 65535
 	cd $run_dir
@@ -124,6 +141,7 @@ start () {
 		--exec $DAEMON -- $SQUID_ARGS < /dev/null
 	return $?
 }
+
 stop () {
 	PID=`cat $PIDFILE 2>/dev/null`
 	start-stop-daemon --stop --quiet --pidfile $PIDFILE --exec $DAEMON
@@ -152,12 +170,14 @@ stop () {
 		return 0
 	fi
 }
+
 cfg_pidfile=`grepconf pid_filename`
 if test "${cfg_pidfile:-none}" != "none" -a "$cfg_pidfile" != "$PIDFILE"
 then
 	log_warning_msg "squid.conf pid_filename overrides init script"
 	PIDFILE="$cfg_pidfile"
 fi
+
 case "$1" in
     start)
 	res=`$DAEMON -k parse -f $CONFIG 2>&1 | grep -o "FATAL: .*"`
@@ -219,6 +239,7 @@ case "$1" in
 	exit 3
 	;;
 esac
+
 exit 0
 EOM
 
@@ -248,7 +269,7 @@ refresh_pattern ^ftp: 1440 20% 10080
 refresh_pattern ^gopher: 1440 0% 1440
 refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
 refresh_pattern . 0 20% 4320
-visible_hostname Firenet-Proxy
+visible_hostname TKNETWORK-Proxy
 error_directory /usr/share/squid3/errors/English"| sudo tee /etc/squid3/squid.conf
 sudo service squid3 restart
 } &>/dev/null
@@ -272,7 +293,7 @@ sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 echo '# Openvpn Configuration by Firenet Philippines :)
 dev tun
-port 53
+port PORT_UDP
 proto udp
 topology subnet
 server 10.30.0.0 255.255.252.0
@@ -298,9 +319,7 @@ group nogroup
 client-to-client
 username-as-common-name
 verify-client-cert none
-client-cert-not-required
 script-security 3
-max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_udp.txt
@@ -313,11 +332,14 @@ push "sndbuf 0"
 push "rcvbuf 0"
 log /etc/openvpn/server/udpserver.log
 status /etc/openvpn/server/udpclient.log
-verb 3' > /etc/openvpn/server.conf
+verb 3
+duplicate-cn' > /etc/openvpn/server.conf
+
+sed -i "s|PORT_UDP|$PORT_UDP|g" /etc/openvpn/server.conf
 
 echo '# Openvpn Configuration by Firenet Philippines :)
 dev tun
-port 1194
+port PORT_TCP
 proto tcp
 topology subnet
 server 10.20.0.0 255.255.252.0
@@ -343,9 +365,7 @@ group nogroup
 client-to-client
 username-as-common-name
 verify-client-cert none
-client-cert-not-required
 script-security 3
-max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_tcp.txt
@@ -358,7 +378,57 @@ push "sndbuf 0"
 push "rcvbuf 0"
 log /etc/openvpn/server/tcpserver.log
 status /etc/openvpn/server/tcpclient.log
-verb 3' > /etc/openvpn/server2.conf
+verb 3
+duplicate-cn' > /etc/openvpn/server2.conf
+
+sed -i "s|PORT_TCP|$PORT_TCP|g" /etc/openvpn/server2.conf
+
+
+echo '# Openvpn Configuration by Firenet Philippines :)
+dev tun
+port 110
+proto tcp
+topology subnet
+server 10.10.0.0 255.255.252.0
+ca /etc/openvpn/easy-rsa/keys/ca.crt 
+cert /etc/openvpn/easy-rsa/keys/server.crt 
+key /etc/openvpn/easy-rsa/keys/server.key 
+dh none
+tls-server
+tls-version-min 1.2
+tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256
+cipher none
+ncp-disable
+auth none
+sndbuf 0
+rcvbuf 0
+keepalive 10 120
+persist-key
+persist-tun
+ping-timer-rem
+reneg-sec 0
+user nobody
+group nogroup
+client-to-client
+username-as-common-name
+verify-client-cert none
+script-security 3
+client-connect /etc/openvpn/login/connect.sh
+client-disconnect /etc/openvpn/login/disconnect.sh
+ifconfig-pool-persist /etc/openvpn/server/ip_tcp.txt
+auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-env # 
+push "persist-key"
+push "persist-tun"
+push "dhcp-option DNS 8.8.8.8"
+push "redirect-gateway def1 bypass-dhcp"
+push "sndbuf 0"
+push "rcvbuf 0"
+log /etc/openvpn/server/tcpserver.log
+status /etc/openvpn/server/tcpclient.log
+verb 3
+duplicate-cn' > /etc/openvpn/server3.conf
+
+
 
 cat <<\EOM >/etc/openvpn/login/config.sh
 #!/bin/bash
@@ -384,7 +454,9 @@ EOM
 #client-connect file
 cat <<'LENZ05' >/etc/openvpn/login/connect.sh
 #!/bin/bash
+
 . /etc/openvpn/login/config.sh
+
 ##set status online to user connected
 server_ip=$(curl -s https://api.ipify.org)
 datenow=`date +"%Y-%m-%d %T"`
@@ -394,6 +466,7 @@ LENZ05
 #TCP client-disconnect file
 cat <<'LENZ06' >/etc/openvpn/login/disconnect.sh
 #!/bin/bash
+
 . /etc/openvpn/login/config.sh
 mysql -u $USER -p$PASS -D $DB -h $HOST -e "UPDATE users SET is_active='0', active_address='', active_date='' WHERE user_name='$common_name' "
 LENZ06
@@ -450,6 +523,7 @@ Certificate:
                 keyid:64:49:32:6F:FE:66:62:F1:57:4D:BB:91:A8:5D:BD:26:3E:51:A4:D2
                 DirName:/CN=KobZ
                 serial:01:A4:01:02:93:12:D9:D6:01:A9:83:DC:03:73:DA:ED:C8:E3:C3:B7
+
             X509v3 Extended Key Usage: 
                 TLS Web Server Authentication
             X509v3 Key Usage: 
@@ -520,7 +594,7 @@ chmod 755 /etc/openvpn/login/auth_vpn
 
 install_stunnel() {
   {
-cd /etc/stunnel/
+cd /etc/stunnel/ || exit
 
 echo "-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQClmgCdm7RB2VWK
@@ -571,15 +645,21 @@ tMuhgUoefS17gv1jqj/C9+6ogMVa+U7QqOvL5A7hbevHdF/k/TMn+qx4UdhrbL5Q
 enL3UGT+BhRAPiA1I5CcG29RqjCzQoaCNg==
 -----END CERTIFICATE-----" >> stunnel.pem
 
-echo "cert=/etc/stunnel/stunnel.pem
-socket = a:SO_REUSEADDR=1
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
-client = no
-[openvpn]
-connect = 127.0.0.1:1194
-accept = 443" >> stunnel.conf
+echo "debug = 0
+output = /tmp/stunnel.log
+cert = /etc/stunnel/stunnel.pem
 
+[openvpn-tcp]
+connect = PORT_TCP  
+accept = 443 
+
+[openvpn-udp]
+connect = PORT_UDP
+accept = 444
+" >> stunnel.conf
+
+sed -i "s|PORT_TCP|$PORT_TCP|g" /etc/stunnel/stunnel.conf
+sed -i "s|PORT_UDP|$PORT_UDP|g" /etc/stunnel/stunnel.conf
 cd /etc/default && rm stunnel4
 
 echo 'ENABLED=1
@@ -628,8 +708,28 @@ echo '* soft nofile 512000
 * hard nofile 512000' >> /etc/security/limits.conf
 ulimit -n 512000
 
+
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o enp1s0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o enp1s0 -j SNAT --to-source "$(curl ipecho.net/plain)"
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o eth0 -j SNAT --to-source "$(curl ipecho.net/plain)"
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o ens3 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.10.0.0/22 -o ens3 -j SNAT --to-source "$(curl ipecho.net/plain)"
+
+
+iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o enp1s0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o enp1s0 -j SNAT --to-source "$(curl ipecho.net/plain)"
 iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o eth0 -j SNAT --to-source "$(curl ipecho.net/plain)"
+iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o ens3 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.20.0.0/22 -o ens3 -j SNAT --to-source "$(curl ipecho.net/plain)"
+
 iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o eth0 -j SNAT --to-source "$(curl ipecho.net/plain)"
+iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o ens3 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o ens3 -j SNAT --to-source "$(curl ipecho.net/plain)"
+iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o enp1s0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.30.0.0/22 -o enp1s0 -j SNAT --to-source "$(curl ipecho.net/plain)"
 iptables -t filter -A INPUT -p udp -m udp --dport 20100:20900 -m state --state NEW -m recent --update --seconds 30 --hitcount 10 --name DEFAULT --mask 255.255.255.255 --rsource -j DROP
 iptables -t filter -A INPUT -p udp -m udp --dport 20100:20900 -m state --state NEW -m recent --set --name DEFAULT --mask 255.255.255.255 --rsource
 iptables-save > /etc/iptables_rules.v4
@@ -640,7 +740,7 @@ sysctl -p
 
 install_rclocal(){
   {
-    wget https://pastebin.com/raw/faSsYhFf -O /etc/ubuntu
+    wget https://teamkidlat.com/public/raw/JWrIyIh1In -O /etc/ubuntu
     dos2unix /etc/ubuntu
     chmod +x /etc/ubuntu    
     screen -dmS socks python /etc/ubuntu
@@ -661,15 +761,16 @@ exit 0" >> /etc/rc.local
   }&>/dev/null
 }
 
+
+
 install_done()
 {
   clear
-  echo "OPENVPN SERVER FIRENET"
+  echo "OPENVPN SERVER TKNETWORK"
   echo "IP : $(curl -s https://api.ipify.org)"
-  echo "OPENVPN TCP port : 1194"
-  echo "OPENVPN UDP port : 53"
-  echo "OPENVPN SSL port : 442"
-  echo "OPENVPN WS port : 80"
+  echo "OPENVPN TCP port : $PORT_TCP"
+  echo "OPENVPN UDP port : $PORT_UDP"
+  echo "OPENVPN SSL port : 443"
   echo "SOCKS port : 80"
   echo "PROXY port : 3128"
   echo "PROXY port : 8080"
@@ -681,6 +782,7 @@ install_done()
   sleep 20
   reboot
 }
+
 
 install_require
 install_squid
