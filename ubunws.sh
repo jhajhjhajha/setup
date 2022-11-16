@@ -2,7 +2,7 @@
 #Script Variables
 HOST='webhosting2046.is.cc';
 USER='mytunnel_zoey';
-PASS='jan022011';
+PASS='JAN022011b';
 DBNAME='mytunnel_zoey';
 PORT_TCP='1194';
 PORT_UDP='53';
