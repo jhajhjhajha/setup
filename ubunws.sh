@@ -707,7 +707,6 @@ install_done()
 }
 
 install_require
-install_sudo
 install_squid
 install_openvpn
 install_stunnel
