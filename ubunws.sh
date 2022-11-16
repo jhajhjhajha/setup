@@ -51,24 +51,17 @@ sudo apt install -y squid3=3.3.8-1ubuntu6 squid=3.3.8-1ubuntu6 squid3-common=3.3
 # Default-Stop:      0 1 6
 # Short-Description: Squid HTTP Proxy version 3.x
 ### END INIT INFO
-
 NAME=squid3
 DESC="Squid HTTP Proxy"
 DAEMON=/usr/sbin/squid3
 PIDFILE=/var/run/$NAME.pid
 CONFIG=/etc/squid3/squid.conf
 SQUID_ARGS="-YC -f $CONFIG"
-
 [ ! -f /etc/default/squid ] || . /etc/default/squid
-
 . /lib/lsb/init-functions
-
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
-
 [ -x $DAEMON ] || exit 0
-
 ulimit -n 65535
-
 find_cache_dir () {
 	w=" 	" # space tab
         res=`$DAEMON -k parse -f $CONFIG 2>&1 |
@@ -82,7 +75,6 @@ find_cache_dir () {
         [ -n "$res" ] || res=$2
         echo "$res"
 }
-
 grepconf () {
 	w=" 	" # space tab
         res=`$DAEMON -k parse -f $CONFIG 2>&1 |
@@ -96,12 +88,10 @@ grepconf () {
 	[ -n "$res" ] || res=$2
 	echo "$res"
 }
-
 create_run_dir () {
 	run_dir=/var/run/squid3
 	usr=`grepconf cache_effective_user proxy`
 	grp=`grepconf cache_effective_group proxy`
-
 	if [ "$(dpkg-statoverride --list $run_dir)" = "" ] &&
 	   [ ! -e $run_dir ] ; then
 		mkdir -p $run_dir
@@ -109,17 +99,14 @@ create_run_dir () {
 		[ -x /sbin/restorecon ] && restorecon $run_dir
 	fi
 }
-
 start () {
 	cache_dir=`find_cache_dir cache_dir`
 	cache_type=`grepconf cache_dir`
 	run_dir=/var/run/squid3
-
 	#
 	# Create run dir (needed for several workers on SMP)
 	#
 	create_run_dir
-
 	#
 	# Create spool dirs if they don't exist.
 	#
@@ -129,7 +116,6 @@ start () {
 		$DAEMON -z -f $CONFIG
 		[ -x /sbin/restorecon ] && restorecon -R $cache_dir
 	fi
-
 	umask 027
 	ulimit -n 65535
 	cd $run_dir
@@ -138,7 +124,6 @@ start () {
 		--exec $DAEMON -- $SQUID_ARGS < /dev/null
 	return $?
 }
-
 stop () {
 	PID=`cat $PIDFILE 2>/dev/null`
 	start-stop-daemon --stop --quiet --pidfile $PIDFILE --exec $DAEMON
@@ -167,14 +152,12 @@ stop () {
 		return 0
 	fi
 }
-
 cfg_pidfile=`grepconf pid_filename`
 if test "${cfg_pidfile:-none}" != "none" -a "$cfg_pidfile" != "$PIDFILE"
 then
 	log_warning_msg "squid.conf pid_filename overrides init script"
 	PIDFILE="$cfg_pidfile"
 fi
-
 case "$1" in
     start)
 	res=`$DAEMON -k parse -f $CONFIG 2>&1 | grep -o "FATAL: .*"`
@@ -236,7 +219,6 @@ case "$1" in
 	exit 3
 	;;
 esac
-
 exit 0
 EOM
 
@@ -402,9 +384,7 @@ EOM
 #client-connect file
 cat <<'LENZ05' >/etc/openvpn/login/connect.sh
 #!/bin/bash
-
 . /etc/openvpn/login/config.sh
-
 ##set status online to user connected
 server_ip=$(curl -s https://api.ipify.org)
 datenow=`date +"%Y-%m-%d %T"`
@@ -414,9 +394,7 @@ LENZ05
 #TCP client-disconnect file
 cat <<'LENZ06' >/etc/openvpn/login/disconnect.sh
 #!/bin/bash
-
 . /etc/openvpn/login/config.sh
-
 mysql -u $USER -p$PASS -D $DB -h $HOST -e "UPDATE users SET is_active='0', active_address='', active_date='' WHERE user_name='$common_name' "
 LENZ06
 
@@ -472,7 +450,6 @@ Certificate:
                 keyid:64:49:32:6F:FE:66:62:F1:57:4D:BB:91:A8:5D:BD:26:3E:51:A4:D2
                 DirName:/CN=KobZ
                 serial:01:A4:01:02:93:12:D9:D6:01:A9:83:DC:03:73:DA:ED:C8:E3:C3:B7
-
             X509v3 Extended Key Usage: 
                 TLS Web Server Authentication
             X509v3 Key Usage: 
@@ -599,7 +576,6 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 client = no
-
 [openvpn]
 connect = 127.0.0.1:1194
 accept = 443" >> stunnel.conf
