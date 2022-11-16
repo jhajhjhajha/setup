@@ -2,7 +2,7 @@
 #Script Variables
 HOST='66.45.227.43';
 USER='mytunnel_zoey';
-PASS='jan022011';
+PASS='JAN022011b';
 DBNAME='mytunnel_zoey';
 PORT_TCP='1194';
 PORT_UDP='53';
