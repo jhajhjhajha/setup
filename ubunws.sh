@@ -1,10 +1,10 @@
 #!/bin/bash
 cp /usr/share/zoneinfo/Asia/Riyadh /etc/localtime
 #Database Details
-HOST='webhosting2031.is.cc';
-USER='mbtunnel_newpanel';
-PASS='JAN022011b';
-DBNAME='mbtunnel_newpanel';
+HOST='66.45.227.43';
+USER='mytunnel_zoey';
+PASS='jan022011';
+DBNAME='mytunnel_zoey';
 
 install_require()
 {
