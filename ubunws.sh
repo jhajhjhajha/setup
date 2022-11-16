@@ -3,7 +3,7 @@ cp /usr/share/zoneinfo/Asia/Riyadh /etc/localtime
 #Database Details
 HOST='66.45.227.43';
 USER='mytunnel_zoey';
-PASS='jan022011';
+PASS='JAN022011b';
 DBNAME='mytunnel_zoey';
 
 install_require()
