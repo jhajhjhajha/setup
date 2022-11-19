@@ -1,7 +1,7 @@
 #!/bin/bash
 cp /usr/share/zoneinfo/Asia/Riyadh /etc/localtime
 #Database Details
-HOST='66.45.227.43';
+HOST='webhosting2046.is.cc';
 USER='mytunnel_zoeynew';
 PASS='JAN022011b';
 DBNAME='mytunnel_zoeynew';
