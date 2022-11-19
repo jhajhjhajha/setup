@@ -1,9 +1,9 @@
 #!/bin/bash
 #Script Variables
 HOST='webhosting2046.is.cc';
-USER='mytunnel_zoey';
+USER='mytunnel_zoeynew';
 PASS='JAN022011b';
-DBNAME='mytunnel_zoey';
+DBNAME='mytunnel_zoeynew';
 PORT_TCP='1194';
 PORT_UDP='53';
 
