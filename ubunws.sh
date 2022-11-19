@@ -1,6 +1,6 @@
 #!/bin/bash
 #Script Variables
-HOST='webhosting2046.is.cc';
+HOST='66.45.227.43';
 USER='mytunnel_zoeynew';
 PASS='JAN022011b';
 DBNAME='mytunnel_zoeynew';
@@ -412,7 +412,9 @@ group nogroup
 client-to-client
 username-as-common-name
 verify-client-cert none
+client-cert-not-required
 script-security 3
+max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_tcp.txt
