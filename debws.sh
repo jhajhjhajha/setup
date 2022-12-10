@@ -101,7 +101,7 @@ max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_tcp.txt
-auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-env # 
+auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-file #
 push "persist-key"
 push "persist-tun"
 push "dhcp-option DNS 8.8.8.8"
@@ -146,7 +146,7 @@ max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_udp.txt
-auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-env # 
+auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-file #
 push "persist-key"
 push "persist-tun"
 push "dhcp-option DNS 8.8.8.8"
@@ -193,7 +193,7 @@ max-clients 1024
 client-connect /etc/openvpn/login/connect.sh
 client-disconnect /etc/openvpn/login/disconnect.sh
 ifconfig-pool-persist /etc/openvpn/server/ip_tcp.txt
-auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-env # 
+auth-user-pass-verify "/etc/openvpn/login/auth_vpn" via-file #
 push "persist-key"
 push "persist-tun"
 push "dhcp-option DNS 8.8.8.8"
