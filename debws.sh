@@ -6,6 +6,7 @@ timedatectl
 apt-get install openvpn easy-rsa -y
 apt install -y dos2unix nano unzip jq virt-what net-tools default-mysql-client
 apt install -y mlocate dh-make libaudit-dev build-essential fail2ban
+apt install -y screen squid stunnel4 dropbear gnutls-bin python
 mkdir -p /etc/openvpn/easy-rsa/keys
 mkdir -p /etc/openvpn/login
 mkdir -p /etc/openvpn/radius
