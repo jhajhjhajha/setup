@@ -17,7 +17,7 @@ cat <<\EOM >/etc/openvpn/login/config.sh
 #!/bin/bash
 HOST='webhosting2046.is.cc'
 USER='mytunnel_zoeynew'
-PASS='jan022011'
+PASS='JAN022011b'
 DB='mytunnel_zoeynew'
 
 EOM
@@ -30,10 +30,10 @@ EOM
 username=`head -n1 $1 | tail -1`   
 password=`head -n2 $1 | tail -1`
 
-HOST='webhosting2050.is.cc'
-USER='teamkidl_smith'
+HOST='webhosting2046.is.cc'
+USER='mytunnel_zoeynew'
 PASS='JAN022011b'
-DB='teamkidl_smith'
+DB='mytunnel_zoeynew'
 
 Query="SELECT user_name FROM users WHERE user_name='$username' AND user_encryptedPass=md5('$password') AND is_freeze='0' AND user_duration > 0"
 user_name=`mysql -u $USER -p$PASS -D $DB -h $HOST -sN -e "$Query"`
